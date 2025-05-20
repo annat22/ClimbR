@@ -7,7 +7,8 @@
 ## httr (https://httr.r-lib.org/reference/response.html)
 ## for parsing data from GET responses see climbGETdf
 
-source("https://raw.github.com/TheJacksonLaboratory/ClimbR/master/getToken.R")
+source("https://raw.github.com/annat22/ClimbR/main/getToken.R")
+
 climbRequest <- function(method, endpointPath, queryList=NULL) {
   
   # check if there is a token in the environment
