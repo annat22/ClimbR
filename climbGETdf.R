@@ -32,7 +32,7 @@ climbGETdf <- function(facet, queryList=NULL) {
   # Fields that are nestled lists get collapsed into a string 
   cols <- lapply(df, function(x) {
     if (is.list(x)) {
-    sapply(x, function(v) {paste(unlist(v), collapse = ",")},
+    sapply(x, function(v) {paste(unlist(v), collapse = ";")},
            USE.NAMES = FALSE)
     } else {x}
     })
