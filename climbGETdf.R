@@ -9,9 +9,11 @@ library(jsonlite)
 
 source("https://raw.github.com/annat22/ClimbR/main/climbRequest.R")
 
-climbGETdf <- function(facet) {
-
-  resp <- climbRequest("GET", endpointPath=facet, queryList=list(PageSize=2000))
+climbGETdf <- function(facet, queryList=NULL) {
+  
+  queryList$PageSize = 2000
+  
+  resp <- climbRequest("GET", endpointPath=facet, queryList=queryList)
   # parse response content 
   parsed <- fromJSON(content(resp, "text"), simplifyVector = TRUE)
   df <- parsed$data$items
@@ -20,7 +22,8 @@ climbGETdf <- function(facet) {
   # repeat for pages 2 to last
   if (pc > 1) {
     for (pci in 2:pc) {
-      resp <- climbRequest("GET", endpointPath=facet, queryList=list(PageSize=2000, PageNumber=pci))
+      queryList$PageNumber = pci
+      resp <- climbRequest("GET", endpointPath=facet, queryList=queryList)
       parsed <- fromJSON(content(resp, "text"), simplifyVector = TRUE)
       df <- rbind(df, parsed$data$items)}
   }
