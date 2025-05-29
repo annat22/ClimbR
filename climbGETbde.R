@@ -48,7 +48,10 @@ climbGETbde <- function(task_name, task_status = "Complete",
   if (length(df.ts0) > 0) {
     df.ts <- merge(df.ts0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
     select(colnames(dft))
-    } else {df.ts <- dft}
+  } else {df.ts <- dft}
+  df.ts <- df.ts %>%
+    mutate(a.materialKey = str_extract(materialKeys, "^[^;]+"),
+           s.materialKey = str_extract(materialKeys, "[^;]+$"))
 
   # get output values
   qL <- list(WorkflowTaskName = task_name, MaterialKey = mat.key)
@@ -75,26 +78,34 @@ climbGETbde <- function(task_name, task_status = "Complete",
     select(animalName, "climbID"=animalId, materialKey)
   
   # get study and program
-  jid <- climbGETdf("jobs") %>%
+  jobs <- climbGETdf("jobs") %>%
     select(jobKey, "study"=jobID, "program"=studyName)
   
   # get notes
-  nid <- climbGETdf("notes") %>%
+  notes <- climbGETdf("notes") %>%
     select(noteText, taskInstanceKey, modifiedBy, dateModified) %>%
-    mutate(note = paste(noteText, modifiedBy, dateModified, sep = ".")) %>%
+    mutate(note = paste0(noteText, "[", modifiedBy, dateModified, "]")) %>%
     group_by(taskInstanceKey) %>%
     summarise(all_notes = paste(note, collapse = "; "), .groups = "drop")
   
-  
   # put it all together
-  df <- right_join(jid, df.ts, by="jobKey") %>%
+  df <- right_join(jobs, df.ts, by="jobKey") %>%
     left_join(df.in, by="taskInstanceKey") %>%
     left_join(df.out, by="taskInstanceKey") %>%
     left_join(cid, by=c("materialKeys.y"="materialKey")) %>%
-    left_join(nid, by="taskInstanceKey") %>%
+    left_join(notes, by="taskInstanceKey") %>%
     relocate(animalName, climbID) %>%
-    select(-matches("materialKey")) %>%
     select(-matches("jobKey"))
 
+  # add sample info for study-type tasks
+  if (any(df.ts0$sampleCount > 0)) {
+  samples <- climbGETdf("samples") %>%
+    select(materialKey, sampleName=name, sampleType=type, harvestDate, sampleStatus=status)
+  df <- left_join(df, samples, by=c("s.materialKey"="materialKey"))
+  }
+  
+  df <- df  %>%
+    select(-matches("materialKey"))
+  
   return(df)
   }
