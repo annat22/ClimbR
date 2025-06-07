@@ -73,9 +73,10 @@ climbGETbde <- function(task_name, task_status = "Complete",
   } else {df.in <- dft}
   df.in <-  df.in %>% pivot_wider(names_from = "inputName", values_from = "inputValue")
 
-  # get animal name and climb ID
+  # get animal name, climb ID, and other info
   cid <- climbGETdf("animals") %>%
-    select(animalName, "climbID"=animalId, materialKey)
+    select(materialKey, animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, line) %>%
+    mutate(across(matches("date"), as.Date))
   
   # get study and program
   jobs <- climbGETdf("jobs") %>%
@@ -84,7 +85,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   # get notes
   notes <- climbGETdf("notes") %>%
     select(noteText, taskInstanceKey, modifiedBy, dateModified) %>%
-    mutate(note = paste0(noteText, "[", modifiedBy, dateModified, "]")) %>%
+    mutate(note = paste0(noteText, " [", modifiedBy, dateModified, "]")) %>%
     group_by(taskInstanceKey) %>%
     summarise(all_notes = paste(note, collapse = "; "), .groups = "drop")
   
@@ -94,13 +95,16 @@ climbGETbde <- function(task_name, task_status = "Complete",
     left_join(df.out, by="taskInstanceKey") %>%
     left_join(cid, by=c("materialKeys.y"="materialKey")) %>%
     left_join(notes, by="taskInstanceKey") %>%
-    relocate(animalName, climbID) %>%
-    select(-matches("jobKey"))
+    relocate(animalName:line) %>%
+    select(-matches("jobKey")) %>%
+    select(-any_of("NA"))
 
   # add sample info for study-type tasks
   if (any(df.ts0$sampleCount > 0)) {
   samples <- climbGETdf("samples") %>%
-    select(materialKey, sampleName=name, sampleType=type, harvestDate, sampleStatus=status)
+    select(materialKey, sampleName=name, 
+           sampleType=type, harvestDate, sampleStatus=status, 
+           measurement, measurementUnit, lotNumber)
   df <- left_join(df, samples, by=c("s.materialKey"="materialKey"))
   }
   
