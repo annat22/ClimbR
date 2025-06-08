@@ -15,17 +15,17 @@ getToken <- function(climb_username=NULL, climb_password=NULL, climb_workgroup=N
   
    # prompt for username if not provided 
   if (is.null(climb_username)) {
-    climb_usr <- Sys.getenv("climb_username")
-    if (climb_usr == "") {
-      climb_usr <- readline(prompt = "Enter climb username: ")
+    climb_username <- Sys.getenv("climb_username")
+    if (climb_username == "") {
+      climb_username <- readline(prompt = "Enter climb username: ")
     }
   }
   
   # get or set password
   if (is.null(climb_password)) {
-    climb_pwd <- Sys.getenv("climb_password")
-    if (climb_pwd == "") {
-      climb_pwd <- readline(prompt = "Enter climb password: ")
+    climb_password <- Sys.getenv("climb_password")
+    if (climb_password == "") {
+      climb_password <- readline(prompt = "Enter climb password: ")
     }
   }
   
