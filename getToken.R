@@ -37,7 +37,7 @@ getToken <- function(climb_username=NULL, climb_password=NULL, climb_workgroup=N
   
   # GET token
   tokenreq <- GET("http://climb-admin.azurewebsites.net/api/token",
-                  authenticate(climb_usr, climb_pwd))
+                  authenticate(climb_username, climb_password))
   
   # return token if request is successful; return full response otherwise
   if (tokenreq$status_code==200) {
