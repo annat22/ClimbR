@@ -7,7 +7,7 @@
 library(tidyverse)
 source("https://raw.github.com/annat22/ClimbR/main/climbGETdf.R")
 
-climbGETbde <- function(datatable) {
+climbGETjoin <- function(datatable) {
   
   datatable <- datatable %>%
     mutate(animalName = toupper(animalName))
