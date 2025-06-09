@@ -1,5 +1,5 @@
 ## get animal metadata from animals facet and joins it with provided data table
-## input is data table with 'a'animalName' column with animal names as on climb
+## input is data table including 'animalName' column with animal names as on climb
 ## animalName is not case sensitive
 ## Returns a table of the original data joined with animal metadata
 ## animal metadata includes
@@ -19,7 +19,7 @@ climbGETjoin <- function(datatable) {
   
 
   # put it together
-  df <- right_join(animals, datatable) 
+  df <- right_join(animals, datatable, by="animalName") 
 
   return(df)
   }
