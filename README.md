@@ -7,4 +7,6 @@ climbRequest.R is a generic function, enabling any request with any query parame
 climbGETdf.R is a wrapper for climbRequest, to get all information available from a given facet.    
 Authentication is done by retrieving a temporary token (valid for 60 minutes) with getToken.R  
 See annotations in the scripts for details.  
+See [this shiny app](https://annat22.shinyapps.io/shinyapp/) for pulling workflow data and animal information using these functions
+
 
