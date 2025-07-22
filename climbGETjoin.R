@@ -14,7 +14,7 @@ climbGETjoin <- function(datatable) {
   
   # get animal name, climb ID, and other info
   animals <- climbGETdf("animals") %>%
-    select(animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, line) %>%
+    select(animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, breedingStatus, line) %>%
     mutate(across(matches("date"), as.Date))
   
 
