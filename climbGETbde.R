@@ -73,7 +73,8 @@ climbGETbde <- function(task_name, task_status = "Complete",
     df.in.l <- merge(df.in0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
       select(colnames(dft))
   } else {df.in.l <- dft}
-  df.in <-  df.in.l %>% 
+  df.in <-  df.in.l %>%
+    mutate(across(everything(), as.character)) %>% 
     filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
     pivot_wider(names_from = "inputName", values_from = "inputValue")
 
@@ -97,7 +98,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   df <- right_join(jobs, df.ts, by="jobKey") %>%
     left_join(df.in, by="taskInstanceKey") %>%
     left_join(df.out, by="taskInstanceKey") %>%
-    left_join(cid, by=c("materialKeys.y"="materialKey")) %>%
+    left_join(cid, by=c("a.materialKey"="materialKey")) %>%
     left_join(notes, by="taskInstanceKey") %>%
     relocate(animalName:line) %>%
     select(-matches("jobKey")) %>%
@@ -107,7 +108,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   if (any(df.ts0$sampleCount > 0)) {
   samples <- climbGETdf("samples") %>%
     select(materialKey, sampleName=name, 
-           sampleType=type, harvestDate, sampleStatus=status, 
+           sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status, 
            measurement, measurementUnit, lotNumber)
   df <- left_join(df, samples, by=c("s.materialKey"="materialKey"))
   }
