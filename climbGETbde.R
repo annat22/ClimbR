@@ -58,20 +58,24 @@ climbGETbde <- function(task_name, task_status = "Complete",
   df.out0 <- climbGETdf("taskinstances/taskOutputs", queryList = qL) 
   dft <- tibble(taskInstanceKey = NA, outputName = NA, outputValue = NA, materialKeys =NA)
   if (length(df.out0) > 0) {
-    df.out <- merge(df.out0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
+    df.out.l <- merge(df.out0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
       select(colnames(dft))
-  } else {df.out <- dft}
-  df.out <-  df.out %>% pivot_wider(names_from = "outputName", values_from = "outputValue")
+  } else {df.out.l <- dft}
+  df.out <-  df.out.l %>% 
+    filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
+    pivot_wider(id_cols = c(taskInstanceKey), names_from = "outputName", values_from = "outputValue")
 
   # get input values
   qL <- list(WorkflowTaskName = task_name, MaterialKey = mat.key)
   df.in0 <- climbGETdf("taskinstances/taskInputs", queryList = qL)
   dft <- tibble(taskInstanceKey = NA, inputName = NA, inputValue = NA)
   if (length(df.in0) > 0) {
-    df.in <- merge(df.in0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
+    df.in.l <- merge(df.in0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
       select(colnames(dft))
-  } else {df.in <- dft}
-  df.in <-  df.in %>% pivot_wider(names_from = "inputName", values_from = "inputValue")
+  } else {df.in.l <- dft}
+  df.in <-  df.in.l %>% 
+    filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
+    pivot_wider(names_from = "inputName", values_from = "inputValue")
 
   # get animal name, climb ID, and other info
   cid <- climbGETdf("animals") %>%
