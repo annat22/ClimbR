@@ -9,7 +9,7 @@
 ## Returns all output fields, animal name/ID, due date and complete date
 
 library(tidyverse)
-source("https://raw.github.com/annat22/ClimbR/main/climbGETdf.R")
+source("https://raw.githubusercontent.com/annat22/ClimbR/main/climbGETdf.R")
 
 climbGETbde <- function(task_name, task_status = "Complete",
                         animal_name = NULL, climb_id = NULL, 

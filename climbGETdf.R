@@ -7,7 +7,7 @@
 
 library(jsonlite)
 
-source("https://raw.github.com/annat22/ClimbR/main/climbRequest.R")
+source("https://raw.githubusercontent.com/annat22/ClimbR/main/climbRequest.R")
 
 climbGETdf <- function(facet, queryList=NULL) {
   

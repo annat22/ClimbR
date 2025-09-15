@@ -9,7 +9,7 @@
 ## (e.g., AnimalNameSearchOptions) or combining fields.
 ## To build a more complex search use the climbRequest function directly
 
-source("https://raw.github.com/annat22/ClimbR/main/climbRequest.R")
+source("https://raw.githubusercontent.com/annat22/ClimbR/main/climbRequest.R")
 
 climbGET <- function(queryValues, facet, queryField=NULL) {
   qv <- c()
