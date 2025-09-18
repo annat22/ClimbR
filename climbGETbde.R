@@ -107,7 +107,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   # add sample info for study-type tasks
   if (any(df.ts0$sampleCount > 0)) {
   samples <- climbGETdf("samples") %>%
-    select(materialKey, sampleName=name, 
+    select(materialKey, sampleID, sampleName=name, 
            sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status, 
            measurement, measurementUnit, lotNumber)
   df <- left_join(df, samples, by=c("s.materialKey"="materialKey"))
