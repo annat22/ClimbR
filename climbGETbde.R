@@ -2,9 +2,11 @@
 ## get task output by any combination of:
 ## task name (not alias), animal name/ID, Due Date range, Complete Date range, task status
 ## Task name is required, the rest is optional
-## Task status is by default 'Complete' and should in most cases stay that way.
-## Using any task status other than 'Complete' may yield unreliable resaults.
+## Task status is by default 'Complete'.
+## Function now works fine with all task statuses.
 ## animal can be provided as name or climb ID but not both
+## dates should be given in format YYYYMMDD
+## specify end date as one day later than intended range in order to include the intended end date
 ## Only one value is allowed per argument
 ## Returns all output fields, animal name/ID, due date and complete date
 
