@@ -36,6 +36,18 @@ climbGETbde <- function(task_name, task_status = "Complete",
       pull(key)
       } else {ts.key <- NULL}
   
+  # get animal info
+  animals <- climbGETdf("animals") %>%
+    select(materialKey, animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, line) %>%
+    mutate(across(matches("date"), as.Date))
+  
+  # get sample info
+  samples <- climbGETdf("samples") %>%
+    select(materialKey, sampleID, sampleName=name,
+           sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status,
+           measurement, measurementUnit, lotNumber) %>%
+    mutate(across(matches("date"), as.Date))
+  
   # get task instance keys for the specific query
   qL <- list(WorkflowTaskName = task_name, TaskStatusKey = ts.key, MaterialKey = mat.key,
              CompletedStartDate = complete_date_start, CompletedEndDate = complete_date_end, 
@@ -49,9 +61,20 @@ climbGETbde <- function(task_name, task_status = "Complete",
     df.ts <- merge(df.ts0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
     select(colnames(dft))
   } else {df.ts <- dft}
+
+  # filter out group task instances with more than 2 material keys
+  # one material key is for animal, one for sample if applicable, but
+  # it's not always animal first
   df.ts <- df.ts %>%
-    mutate(a.materialKey = str_extract(materialKeys, "^[^;]+"),
-           s.materialKey = str_extract(materialKeys, "[^;]+$"))
+    filter(str_count(materialKeys, ";") < 2) %>%
+    mutate(materialKey1 = str_extract(materialKeys, "^[^;]+"),
+           materialKey2 = str_extract(materialKeys, "[^;]+$")) %>%
+    mutate(a.materialKey = case_when(materialKey1 %in% animals$materialKey ~ materialKey1,
+                                     materialKey2 %in% animals$materialKey ~ materialKey2,
+                                     .default = NA),
+           s.materialKey = case_when(materialKey1 %in% samples$materialKey ~ materialKey1,
+                                     materialKey2 %in% samples$materialKey ~ materialKey2,
+                                     .default = NA))
 
   # get output values
   qL <- list(WorkflowTaskName = task_name, MaterialKey = mat.key)
@@ -60,7 +83,9 @@ climbGETbde <- function(task_name, task_status = "Complete",
   if (length(df.out0) > 0) {
     df.out.l <- merge(df.out0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
       select(colnames(dft))
-  } else {df.out.l <- dft}
+  } else {df.out.l <- dft %>%
+    mutate(across(everything(), as.character))
+  }
   df.out <-  df.out.l %>% 
     filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
     pivot_wider(id_cols = c(taskInstanceKey), names_from = "outputName", values_from = "outputValue")
@@ -78,11 +103,6 @@ climbGETbde <- function(task_name, task_status = "Complete",
     filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
     pivot_wider(names_from = "inputName", values_from = "inputValue")
 
-  # get animal name, climb ID, and other info
-  cid <- climbGETdf("animals") %>%
-    select(materialKey, animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, line) %>%
-    mutate(across(matches("date"), as.Date))
-  
   # get study and program
   jobs <- climbGETdf("jobs") %>%
     select(jobKey, "study"=jobID, "program"=studyName)
@@ -98,24 +118,12 @@ climbGETbde <- function(task_name, task_status = "Complete",
   df <- right_join(jobs, df.ts, by="jobKey") %>%
     left_join(df.in, by="taskInstanceKey") %>%
     left_join(df.out, by="taskInstanceKey") %>%
-    left_join(cid, by=c("a.materialKey"="materialKey")) %>%
-    left_join(notes, by="taskInstanceKey") %>%
+    left_join(animals, by=c("a.materialKey"="materialKey")) %>%
+    left_join(notes, by="taskInstanceKey")  %>%
+    left_join(samples, by=c("s.materialKey"="materialKey")) %>%
     relocate(animalName:line) %>%
     select(-matches("jobKey")) %>%
-    select(-any_of("NA"))
-
-  # add sample info for study-type tasks
-  if (any(df.ts0$sampleCount > 0)) {
-    samples <- climbGETdf("samples") %>%
-      select(materialKey, sampleID, sampleName=name, 
-            sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status, 
-            measurement, measurementUnit, lotNumber) %>%
-      mutate(across(matches("date"), as.Date))
-  
-    df <- left_join(df, samples, by=c("s.materialKey"="materialKey"))
-  }
-  
-  df <- df  %>%
+    select(-any_of("NA")) %>%
     select(-matches("materialKey"))
   
   return(df)
