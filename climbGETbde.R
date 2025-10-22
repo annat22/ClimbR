@@ -62,7 +62,9 @@ climbGETbde <- function(task_name, task_status = "Complete",
   if (length(df.ts0) > 0) {
     df.ts <- merge(df.ts0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
     select(colnames(dft))
-  } else {df.ts <- dft}
+  } else {df.ts <- dft
+  mutate(across(everything(), as.character))
+  }
 
   # filter out group task instances with more than 2 material keys
   # one material key is for animal, one for sample if applicable, but
