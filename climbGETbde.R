@@ -4,7 +4,7 @@
 ## Task name is required, the rest is optional
 ## Task status is by default 'Complete'.
 ## Function now works fine with all task statuses.
-## animal can be provided as name or climb ID but not both
+## animal can be specified by its name or its climb ID but not both
 ## dates should be given in format YYYYMMDD
 ## specify end date as one day later than intended range in order to include the intended end date
 ## Only one value is allowed per argument
@@ -14,7 +14,7 @@ library(tidyverse)
 source("https://raw.githubusercontent.com/annat22/ClimbR/main/climbGETdf.R")
 
 climbGETbde <- function(task_name, task_status = "Complete",
-                        animal_name = NULL, climb_id = NULL, 
+                        animal_name = NULL, animal_id = NULL, 
                         due_date_start = NULL, due_date_end = NULL, 
                         complete_date_start = NULL, complete_date_end = NULL) {
   
@@ -25,9 +25,9 @@ climbGETbde <- function(task_name, task_status = "Complete",
     filter(animalName == toupper(animal_name)) %>%
     pull(materialKey)
     }
-  if (!is.null(climb_id)) {
+  if (!is.null(animal_id)) {
     mat.key <- climbGETdf("animals") %>%
-    filter(animalId == climb_id) %>%
+    filter(animalId == animal_id) %>%
     pull(materialKey)
     }
  
@@ -40,7 +40,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   
   # get animal info
   animals <- climbGETdf("animals") %>%
-    select(materialKey, animalName, "climbID"=animalId, dateBorn, dateExit, sex, use, line) %>%
+    select(materialKey, animalName, "animalID"=animalId, dateBorn, dateExit, sex, use, line) %>%
     mutate(across(matches("date"), as.Date))
   
   # get sample info
