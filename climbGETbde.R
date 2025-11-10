@@ -44,11 +44,21 @@ climbGETbde <- function(task_name, task_status = "Complete",
     mutate(across(matches("date"), as.Date))
   
   # get sample info
-  samples <- climbGETdf("samples") %>%
+  samples0 <- climbGETdf("samples") %>%
     select(materialKey, sampleID, sampleName=name,
            sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status,
-           measurement, measurementUnit, lotNumber) %>%
+           measurement, measurementUnit, lotNumber,
+           timePoint, timePointUnit, sourceMaterialKeys) %>%
     mutate(across(matches("date"), as.Date))
+  # TODO parse out sample source ID from sourceMAterialKey
+  # one material key is for animal, one for sample
+  samples <- samples0 %>%
+    mutate(sourceMaterialKey1 = str_extract(sourceMaterialKeys, "^[^;]+"),
+           sourceMaterialKey2 = str_extract(sourceMaterialKeys, "[^;]+$")) %>%
+    mutate(sampleSourceKey = case_when(sourceMaterialKey1 %in% samples0$materialKey ~ sourceMaterialKey1,
+                                      sourceMaterialKey2 %in% samples0$materialKey ~ sourceMaterialKey2,
+                                     .default = NA)) %>%
+    select(-matches("sourceMaterial"))
   
   # get task instance keys for the specific query
   qL <- list(WorkflowTaskName = task_name, TaskStatusKey = ts.key, MaterialKey = mat.key,
@@ -125,10 +135,12 @@ climbGETbde <- function(task_name, task_status = "Complete",
     left_join(animals, by=c("a.materialKey"="materialKey")) %>%
     left_join(notes, by="taskInstanceKey")  %>%
     left_join(samples, by=c("s.materialKey"="materialKey")) %>%
+    left_join(samples %>% select(materialKey, sampleSourceID=sampleID),
+              by=c("sampleSourceKey"="materialKey")) %>%
     relocate(animalName:line) %>%
     select(-matches("jobKey")) %>%
     select(-any_of("NA")) %>%
-    select(-matches("materialKey"))
+    select(-matches("materialKey"), -sampleSourceKey)
   
   return(df)
   }
