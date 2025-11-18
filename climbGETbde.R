@@ -50,7 +50,6 @@ climbGETbde <- function(task_name, task_status = "Complete",
            measurement, measurementUnit, lotNumber,
            timePoint, timePointUnit, sourceMaterialKeys) %>%
     mutate(across(matches("date"), as.Date))
-  # TODO parse out sample source ID from sourceMAterialKey
   # one material key is for animal, one for sample
   samples <- samples0 %>%
     mutate(sourceMaterialKey1 = str_extract(sourceMaterialKeys, "^[^;]+"),
@@ -67,7 +66,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   df.ts0 <- climbGETdf(facet = "taskinstances", queryList = qL)
   dft <- tibble(taskInstanceKey = NA, jobKey=NA, workflowTaskName = NA, taskAlias = NA, 
                      taskStatus = NA, materialKeys = NA, assignedTo = NA, dateDue = NA,
-                     completedBy = NA, dateComplete = NA, reviewedBy = NA, dateReviewed = NA,
+                     completedBy = NA, dateComplete = NA, dateReviewed = NA,
                      createdBy = NA, dateCreated = NA, modifiedBy = NA, dateModified = NA)
   if (length(df.ts0) > 0) {
     df.ts <- merge(df.ts0, dft, all.x=TRUE, all.y=FALSE, sort=FALSE) %>%
