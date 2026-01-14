@@ -48,6 +48,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
     select(materialKey, sampleID, sampleName=name,
            sampleType=type, sampleSubtype=subtype, harvestDate, sampleStatus=status,
            measurement, measurementUnit, lotNumber,
+           processing=processingMethod, analysis=analysisMethod,
            timePoint, timePointUnit, sourceMaterialKeys) %>%
     mutate(across(matches("date"), as.Date))
   # one material key is for animal, one for sample
