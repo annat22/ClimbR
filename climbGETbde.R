@@ -40,7 +40,7 @@ climbGETbde <- function(task_name, task_status = "Complete",
   
   # get animal info
   animals <- climbGETdf("animals") %>%
-    select(materialKey, animalName, "animalID"=animalId, dateBorn, dateExit, sex, use, line) %>%
+    select(materialKey, animalName, "animalID"=animalId, dateBorn, dateExit, sex, use, line, origin) %>%
     mutate(across(matches("date"), as.Date))
   
   # get sample info
