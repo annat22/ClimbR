@@ -102,7 +102,12 @@ climbGETbde <- function(task_name, task_status = "Complete",
   }
   df.out <-  df.out.l %>% 
     filter(taskInstanceKey %in% df.ts$taskInstanceKey) %>%
-    pivot_wider(id_cols = c(taskInstanceKey), names_from = "outputName", values_from = "outputValue")
+    pivot_wider(id_cols = c(taskInstanceKey),
+                names_from = "outputName", values_from = "outputValue",
+                values_fn = ~ {
+                  vals <- unique(.x[!is.na(.x)])
+                  if (length(vals) == 0) NA_character_ else paste(vals, collapse = "; ")
+                })
 
   # get input values
   qL <- list(WorkflowTaskName = task_name, MaterialKey = mat.key)
